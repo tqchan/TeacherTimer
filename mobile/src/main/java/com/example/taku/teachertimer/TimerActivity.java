@@ -56,12 +56,16 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     NotificationManagerCompat notificationManagerCompat;
     String mNode;
     GoogleApiClient mGoogleApiClient;
-    public static final String START_ACTIVITY_PATH = "/start/MainActivity";
+    public static final String SETTING_TIME_PATH = "/setting/time";
+    public static final String NOTICE_SETTING_TIME_PATH = "/notice/setting/time";
+    public static final String CLASS_SETTING_TIME_PATH = "/class/setting/time";
     NodeApi.GetConnectedNodesResult nodes;
     SendMessageResult result;
     String path;
     String handheldmessage;
-    String alert_text;
+    String notice_text;
+    String kaisi;
+    String settingtime_text;
 
 
     @Override
@@ -244,9 +248,9 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
             if ((jugyou - (millisUntilFinished/1000)) == notification_time) {
                 //設定した時間のmessage
                 settingtime();
-                //notification作成
             } else if ((jugyou - (millisUntilFinished/1000)) == (notification_time - 60)) {
-                alet_settingtime();
+                //設定した1分前
+                notice_settingtime();
             }
 
             //残り時間表示
@@ -272,36 +276,28 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
         }
     }
 
-    private void alet_settingtime() {
+    private void kaisi() {
+
         notification_title = katei_array.get(notification_time_number);
-        alert_text = "まもなく" + notification_title + "が終了です";
-        new SendDataThread(START_ACTIVITY_PATH, alert_text).start();
+        kaisi = "今は" + notification_title + "です";
+        new SendDataThread(CLASS_SETTING_TIME_PATH, kaisi).start();
+    }
+
+    private void notice_settingtime() {
+
+        notification_title = katei_array.get(notification_time_number);
+        notice_text = "まもなく" + notification_title + "が終了です";
+        new SendDataThread(NOTICE_SETTING_TIME_PATH, notice_text).start();
+
     }
 
     private void settingtime() {
 
-            Log.d(TAG, "" + notification_time_number);
-            notification_title = katei_array.get(notification_time_number);
-            new SendDataThread(START_ACTIVITY_PATH, notification_title).start();
-            //notification作成
-//            if (zikan_array.size() > (notification_time_number + 1)) {
-//                notificationBuilder = new NotificationCompat.Builder(mcontext)
-//                        .setSmallIcon(R.mipmap.ic_launcher)
-//                        .setContentTitle("次の予定指導過程は，" + notification_title)
-//                        .setContentText("今は" + katei_array.get(notification_time_number) + "です\n次は" + katei_array.get(notification_time_number + 1) + "です")
-//                        .setDefaults(Notification.DEFAULT_VIBRATE)
-//                        .setContentIntent(pendingIntent);
-//            } else if (zikan_array.size() == (notification_time_number + 1)) {
-//                notificationBuilder = new NotificationCompat.Builder(mcontext)
-//                        .setSmallIcon(R.mipmap.ic_launcher)
-//                        .setContentTitle("次の予定指導過程は，" + notification_title)
-//                        .setContentText("今は" + katei_array.get(notification_time_number) + "です")
-//                        .setDefaults(Notification.DEFAULT_VIBRATE)
-//                        .setContentIntent(pendingIntent);
-//            }
-//            notificationManagerCompat.notify(notification_id, notificationBuilder.build());
-
-            notification_time_number = notification_time_number + 1;
+        Log.d(TAG, "" + notification_time_number);
+        notification_title = katei_array.get(notification_time_number);
+        settingtime_text = "今は" + notification_title + "の時間です";
+        new SendDataThread(SETTING_TIME_PATH, settingtime_text).start();
+        notification_time_number = notification_time_number + 1;
 
     }
 
@@ -319,6 +315,7 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
                 SendMessageResult result = Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), path, handheldmessage.getBytes()).await();
                 if (result.getStatus().isSuccess()) {
                     Log.d(TAG, "To:" + node.getDisplayName());
+                    Log.d(TAG, path);
                     Log.d(TAG, handheldmessage);
                 } else {
                     Log.d(TAG, "error");

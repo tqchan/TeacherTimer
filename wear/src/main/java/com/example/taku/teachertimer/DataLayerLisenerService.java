@@ -12,24 +12,44 @@ import com.google.android.gms.wearable.WearableListenerService;
  */
 public class DataLayerLisenerService extends WearableListenerService {
     private static final String TAG = DataLayerLisenerService.class.getSimpleName();
-    public static final String START_ACTIVITY_PATH = "/start/MainActivity";
+    public static final String SETTING_TIME_PATH = "/setting/time";
+    public static final String NOTICE_SETTING_TIME_PATH = "/notice/setting/time";
+    public static final String CLASS_SETTING_TIME_PATH = "/class/setting/time";
     String wear_message;
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
         super.onMessageReceived(messageEvent);
-        if (messageEvent.getPath().equals(START_ACTIVITY_PATH)) {
+        if (messageEvent.getPath().equals(SETTING_TIME_PATH)) {
 
             wear_message = new String(messageEvent.getData());
-            Log.d(TAG, messageEvent.getPath());
+//            Log.d(TAG, messageEvent.getPath());
             Log.d(TAG, wear_message);
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_SEND);
+            intent.putExtra("message", wear_message);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
+        } else if (messageEvent.getPath().equals(NOTICE_SETTING_TIME_PATH)) {
+
+            wear_message = new String(messageEvent.getData());
+            Log.d(TAG, wear_message);
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_SEND);
+            intent.putExtra("message", wear_message);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        } else if (messageEvent.getPath().equals(CLASS_SETTING_TIME_PATH)) {
+
+            wear_message = new String(messageEvent.getData());
+            Log.d(TAG, wear_message);
             Intent intent = new Intent();
             intent.setAction(Intent.ACTION_SEND);
             intent.putExtra("message", wear_message);
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         } else {
             Log.d(TAG, "error");
+            Log.d(TAG, messageEvent.getPath());
         }
+
     }
 }
