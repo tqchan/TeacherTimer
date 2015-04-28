@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
@@ -18,6 +19,8 @@ public class MainActivity extends Activity {
     String receive_message = null;
     String message = "";
     String wear_message;
+    Vibrator mVibrator;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +29,7 @@ public class MainActivity extends Activity {
         mIntentFilter = new IntentFilter(Intent.ACTION_SEND);
         MessageReceiver messageReceiver = new MessageReceiver();
         LocalBroadcastManager.getInstance(getApplication()).registerReceiver(messageReceiver, mIntentFilter);
-
+        mVibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
         setScreen();
     }
 
@@ -55,7 +58,13 @@ public class MainActivity extends Activity {
             public void onLayoutInflated(WatchViewStub stub) {
                 mTextView = (TextView) stub.findViewById(R.id.text);
                 mTextView.setText(wear_message);
+                vibrate();
             }
         });
+    }
+
+
+    private void vibrate() {
+        mVibrator.vibrate(2000);
     }
 }

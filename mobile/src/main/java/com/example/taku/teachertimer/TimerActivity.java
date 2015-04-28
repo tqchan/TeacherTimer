@@ -61,6 +61,7 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     SendMessageResult result;
     String path;
     String handheldmessage;
+    String alert_text;
 
 
     @Override
@@ -233,38 +234,19 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
                 notification_time = zikan_array.get(notification_time_number);
                 Log.d(TAG, "notification_time_number:" + notification_time_number);
                 Log.d(TAG, "millisUntilFinished:" + millisUntilFinished/1000);
-//                sendMessageToStartActivity();
             } else if (zikan_array.size() == notification_time_number) {
 
                 notification_time = jugyou;
                 Log.d(TAG, "jugyou:endtime");
             }
 
-            //通知
-            if ((jugyou - (millisUntilFinished/1000)) == notification_time) {
-                Log.d(TAG, "" + notification_time_number);
-                notification_title = katei_array.get(notification_time_number);
-                new SendDataThread(START_ACTIVITY_PATH, notification_title).start();
-                //notification作成
-                if (zikan_array.size() > (notification_time_number + 1)) {
-                    notificationBuilder = new NotificationCompat.Builder(mcontext)
-                            .setSmallIcon(R.mipmap.ic_launcher)
-                            .setContentTitle("次の予定指導過程は，" + notification_title)
-                            .setContentText("今は" + katei_array.get(notification_time_number) + "です\n次は" + katei_array.get(notification_time_number + 1) + "です")
-//                            .setWhen(System.currentTimeMillis())
-                            .setDefaults(Notification.DEFAULT_VIBRATE)
-                            .setContentIntent(pendingIntent);
-                } else if (zikan_array.size() == (notification_time_number + 1)) {
-                    notificationBuilder = new NotificationCompat.Builder(mcontext)
-                            .setSmallIcon(R.mipmap.ic_launcher)
-                            .setContentTitle("次の予定指導過程は，" + notification_title)
-                            .setContentText("今は" + katei_array.get(notification_time_number) + "です")
-                            .setDefaults(Notification.DEFAULT_VIBRATE)
-                            .setContentIntent(pendingIntent);
-                }
-                notificationManagerCompat.notify(notification_id, notificationBuilder.build());
 
-                notification_time_number = notification_time_number + 1;
+            if ((jugyou - (millisUntilFinished/1000)) == notification_time) {
+                //設定した時間のmessage
+                settingtime();
+                //notification作成
+            } else if ((jugyou - (millisUntilFinished/1000)) == (notification_time - 60)) {
+                alet_settingtime();
             }
 
             //残り時間表示
@@ -290,24 +272,39 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
         }
     }
 
-    private Collection<String> getNodes() {
-        HashSet<String> results = new HashSet<String>();
-        NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
-        for (Node node : nodes.getNodes()) {
-            results.add(node.getId());
-        }
-        return results;
+    private void alet_settingtime() {
+        notification_title = katei_array.get(notification_time_number);
+        alert_text = "まもなく" + notification_title + "が終了です";
+        new SendDataThread(START_ACTIVITY_PATH, alert_text).start();
     }
 
-    private void sendMessageToStartActivity() {
-        Collection<String> nodes = getNodes();
-        for (String node : nodes) {
-            MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(mGoogleApiClient, node, START_ACTIVITY_PATH, null).await();
-            if (!result.getStatus().isSuccess()) {
-                Log.e(TAG, "ERROR: failed to send Message: " + result.getStatus());
-            }
-        }
+    private void settingtime() {
+
+            Log.d(TAG, "" + notification_time_number);
+            notification_title = katei_array.get(notification_time_number);
+            new SendDataThread(START_ACTIVITY_PATH, notification_title).start();
+            //notification作成
+//            if (zikan_array.size() > (notification_time_number + 1)) {
+//                notificationBuilder = new NotificationCompat.Builder(mcontext)
+//                        .setSmallIcon(R.mipmap.ic_launcher)
+//                        .setContentTitle("次の予定指導過程は，" + notification_title)
+//                        .setContentText("今は" + katei_array.get(notification_time_number) + "です\n次は" + katei_array.get(notification_time_number + 1) + "です")
+//                        .setDefaults(Notification.DEFAULT_VIBRATE)
+//                        .setContentIntent(pendingIntent);
+//            } else if (zikan_array.size() == (notification_time_number + 1)) {
+//                notificationBuilder = new NotificationCompat.Builder(mcontext)
+//                        .setSmallIcon(R.mipmap.ic_launcher)
+//                        .setContentTitle("次の予定指導過程は，" + notification_title)
+//                        .setContentText("今は" + katei_array.get(notification_time_number) + "です")
+//                        .setDefaults(Notification.DEFAULT_VIBRATE)
+//                        .setContentIntent(pendingIntent);
+//            }
+//            notificationManagerCompat.notify(notification_id, notificationBuilder.build());
+
+            notification_time_number = notification_time_number + 1;
+
     }
+
 
     class SendDataThread extends Thread {
         public SendDataThread(String pth, String message) {
