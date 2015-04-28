@@ -17,6 +17,7 @@ public class MainActivity extends Activity {
     IntentFilter mIntentFilter;
     String receive_message = null;
     String message = "";
+    String wear_message;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,13 +47,14 @@ public class MainActivity extends Activity {
     }
 
     private void setScreen() {
+        wear_message = "今の時間は" + message + "です";
         setContentView(R.layout.activity_main);
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
                 mTextView = (TextView) stub.findViewById(R.id.text);
-                mTextView.setText(message);
+                mTextView.setText(wear_message);
             }
         });
     }
