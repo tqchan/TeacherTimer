@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageEvent;
 
-public class MainActivity extends Activity implements MessageApi.MessageListener{
+public class MainActivity extends Activity{
 
     private TextView mTextView;
     IntentFilter mIntentFilter;
@@ -27,7 +27,7 @@ public class MainActivity extends Activity implements MessageApi.MessageListener
     public static final String SETTING_TIME_PATH = "/setting/time";
     public static final String NOTICE_SETTING_TIME_PATH = "/notice/setting/time";
     public static final String CLASS_SETTING_TIME_PATH = "/class/setting/time";
-//    String wear_message;
+    int vibrate_time = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,55 +41,27 @@ public class MainActivity extends Activity implements MessageApi.MessageListener
             }
         });
         mIntentFilter = new IntentFilter(Intent.ACTION_SEND);
-//        MessageReceiver messageReceiver = new MessageReceiver();
-//        LocalBroadcastManager.getInstance(getApplication()).registerReceiver(messageReceiver, mIntentFilter);
+        MessageReceiver messageReceiver = new MessageReceiver();
+        LocalBroadcastManager.getInstance(getApplication()).registerReceiver(messageReceiver, mIntentFilter);
         mVibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
     }
-    @Override
-    public void onMessageReceived(MessageEvent messageEvent) {
-        if (messageEvent.getPath().equals(SETTING_TIME_PATH)) {
 
-            wear_message = new String(messageEvent.getData());
-//            Log.d(TAG, messageEvent.getPath());
-            Log.d(TAG, wear_message);
-
-            setScreen();
-
-        } else if (messageEvent.getPath().equals(NOTICE_SETTING_TIME_PATH)) {
-
-            wear_message = new String(messageEvent.getData());
-            Log.d(TAG, wear_message);
-
-            setScreen();
-
-        } else if (messageEvent.getPath().equals(CLASS_SETTING_TIME_PATH)) {
-
-            wear_message = new String(messageEvent.getData());
-            Log.d(TAG, wear_message);
+    public class MessageReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            receive_message = intent.getStringExtra("message");
+            vibrate_time = intent.getIntExtra("vibrate_time", 100);
+            Log.d("MessageReceive", "receivemessage" + receive_message);
+            if (receive_message != null) {
+                message = receive_message;
+                Log.d("MessageReceive", "receivemessage" + receive_message);
+            } else {
+                receive_message = "No Message";
+            }
 
             setScreen();
-
-        } else {
-            Log.d(TAG, "error");
-            Log.d(TAG, messageEvent.getPath());
         }
-
     }
-//    public class MessageReceiver extends BroadcastReceiver {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            receive_message = intent.getStringExtra("message");
-//            Log.d("MessageReceive", "receivemessage" + receive_message);
-//            if (receive_message != null) {
-//                message = receive_message;
-//                Log.d("MessageReceive", "receivemessage" + receive_message);
-//            } else {
-//                receive_message = "No Message";
-//            }
-//
-//            setScreen();
-//        }
-//    }
 
     private void setScreen() {
         mTextView.setText(message);
@@ -99,7 +71,7 @@ public class MainActivity extends Activity implements MessageApi.MessageListener
 
 
     private void vibrate() {
-        mVibrator.vibrate(1000);
+        mVibrator.vibrate(vibrate_time);
     }
 
 

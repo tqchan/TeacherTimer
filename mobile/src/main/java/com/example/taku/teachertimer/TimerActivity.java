@@ -179,6 +179,7 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
         @Override
         public void onClick(View v) {
             countDownTimer.start();
+            kaisi();
         }
     };
 
@@ -279,8 +280,9 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     private void kaisi() {
 
         notification_title = katei_array.get(notification_time_number);
-        kaisi = "今は" + notification_title + "です";
+        kaisi = "今は" + notification_title + "の時間です";
         new SendDataThread(CLASS_SETTING_TIME_PATH, kaisi).start();
+
     }
 
     private void notice_settingtime() {

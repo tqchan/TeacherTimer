@@ -28,6 +28,7 @@ public class DataLayerLisenerService extends WearableListenerService {
             Intent intent = new Intent();
             intent.setAction(Intent.ACTION_SEND);
             intent.putExtra("message", wear_message);
+            intent.putExtra("vibrate_time", 500);
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
         } else if (messageEvent.getPath().equals(NOTICE_SETTING_TIME_PATH)) {
@@ -37,7 +38,9 @@ public class DataLayerLisenerService extends WearableListenerService {
             Intent intent = new Intent();
             intent.setAction(Intent.ACTION_SEND);
             intent.putExtra("message", wear_message);
+            intent.putExtra("vibrate_time", 100);
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+
         } else if (messageEvent.getPath().equals(CLASS_SETTING_TIME_PATH)) {
 
             wear_message = new String(messageEvent.getData());
@@ -46,6 +49,7 @@ public class DataLayerLisenerService extends WearableListenerService {
             intent.setAction(Intent.ACTION_SEND);
             intent.putExtra("message", wear_message);
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+
         } else {
             Log.d(TAG, "error");
             Log.d(TAG, messageEvent.getPath());
