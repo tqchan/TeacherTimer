@@ -1,7 +1,6 @@
 package com.example.taku.teachertimer;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -19,15 +18,11 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 
 import static android.view.View.*;
 import static com.google.android.gms.wearable.MessageApi.*;
@@ -48,19 +43,15 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     int notification_time_number = 0;
     int notification_id = 1;
     String notification_title;
-    String notification_text = "確認してください";
     NotificationCompat.Builder notificationBuilder;
     Context mcontext;
     Intent viewIntent;
     PendingIntent pendingIntent;
     NotificationManagerCompat notificationManagerCompat;
-    String mNode;
     GoogleApiClient mGoogleApiClient;
     public static final String SETTING_TIME_PATH = "/setting/time";
     public static final String NOTICE_SETTING_TIME_PATH = "/notice/setting/time";
     public static final String CLASS_SETTING_TIME_PATH = "/class/setting/time";
-    NodeApi.GetConnectedNodesResult nodes;
-    SendMessageResult result;
     String path;
     String handheldmessage;
     String notice_text;
@@ -84,24 +75,21 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
          *
          */
 
-        time_left = (TextView)findViewById(R.id.timer_text);
-        cdt_st = (Button)findViewById(R.id.cdt_start);
-        cdt_fi = (Button)findViewById(R.id.cdt_finish);
-        good = (Button)findViewById(R.id.iine_button);
+        time_left = (TextView) findViewById(R.id.timer_text);
+        cdt_st = (Button) findViewById(R.id.cdt_start);
+        cdt_fi = (Button) findViewById(R.id.cdt_finish);
+        good = (Button) findViewById(R.id.iine_button);
 
         cdt_st.setOnClickListener(cdt_stOnclickListener);
         cdt_fi.setOnClickListener(cdt_fiOnclickListener);
         good.setOnClickListener(goodOnClickListener);
 
-        katei_array = new ArrayList<String>();
-        zikan_array = new ArrayList<Integer>();
+        katei_array = new ArrayList<>();
+        zikan_array = new ArrayList<>();
 
         Intent intent = getIntent();
         katei_array = intent.getStringArrayListExtra("katei");
         zikan_array = intent.getIntegerArrayListExtra("time");
-
-//        Log.d(TAG, katei_array.get(0));
-//        Log.d(TAG, "" + zikan_array.get(0));
 
         //count down timer 初期化
         countDownTimer = new MyCountDownTimer(jugyou * 1000, 1000);
@@ -117,6 +105,7 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+
 
     }
 
@@ -237,8 +226,8 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
             //インターバル(1秒)毎に呼ばれる
             if (zikan_array.size() > notification_time_number) {
                 notification_time = zikan_array.get(notification_time_number);
-                Log.d(TAG, "notification_time_number:" + notification_time_number);
-                Log.d(TAG, "millisUntilFinished:" + millisUntilFinished/1000);
+//                Log.d(TAG, "notification_time_number:" + notification_time_number);
+//                Log.d(TAG, "millisUntilFinished:" + millisUntilFinished / 1000);
             } else if (zikan_array.size() == notification_time_number) {
 
                 notification_time = jugyou;
@@ -246,26 +235,26 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
             }
 
 
-            if ((jugyou - (millisUntilFinished/1000)) == notification_time) {
+            if ((jugyou - (millisUntilFinished / 1000)) == notification_time) {
                 //設定した時間のmessage
                 settingtime();
-            } else if ((jugyou - (millisUntilFinished/1000)) == (notification_time - 60)) {
+            } else if ((jugyou - (millisUntilFinished / 1000)) == (notification_time - 60)) {
                 //設定した1分前
                 notice_settingtime();
             }
 
             //残り時間表示
-            if ((millisUntilFinished/1000/60) >=10 ) {
-                if ((millisUntilFinished/1000%60) >= 10) {
-                    time_left.setText(Long.toString(millisUntilFinished/1000/60) + ":" + Long.toString(millisUntilFinished/1000%60));
-                } else if ((millisUntilFinished/1000%60) <10) {
-                    time_left.setText(Long.toString(millisUntilFinished/1000/60) + ":0" + Long.toString(millisUntilFinished/1000%60));
+            if ((millisUntilFinished / 1000 / 60) >= 10) {
+                if ((millisUntilFinished / 1000 % 60) >= 10) {
+                    time_left.setText(Long.toString(millisUntilFinished / 1000 / 60) + ":" + Long.toString(millisUntilFinished / 1000 % 60));
+                } else if ((millisUntilFinished / 1000 % 60) < 10) {
+                    time_left.setText(Long.toString(millisUntilFinished / 1000 / 60) + ":0" + Long.toString(millisUntilFinished / 1000 % 60));
                 }
-            } else if ((millisUntilFinished/1000/60) < 9) {
-                if ((millisUntilFinished/1000%60) >= 10) {
-                    time_left.setText("0" + Long.toString(millisUntilFinished/1000/60) + ":" + Long.toString(millisUntilFinished/1000%60));
-                } else if ((millisUntilFinished/1000%60) <10) {
-                    time_left.setText("0" + Long.toString(millisUntilFinished/1000/60) + ":0" + Long.toString(millisUntilFinished/1000%60));
+            } else if ((millisUntilFinished / 1000 / 60) < 9) {
+                if ((millisUntilFinished / 1000 % 60) >= 10) {
+                    time_left.setText("0" + Long.toString(millisUntilFinished / 1000 / 60) + ":" + Long.toString(millisUntilFinished / 1000 % 60));
+                } else if ((millisUntilFinished / 1000 % 60) < 10) {
+                    time_left.setText("0" + Long.toString(millisUntilFinished / 1000 / 60) + ":0" + Long.toString(millisUntilFinished / 1000 % 60));
                 }
             }
         }
