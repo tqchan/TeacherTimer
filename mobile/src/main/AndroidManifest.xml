@@ -3,6 +3,7 @@
     package="com.example.taku.teachertimer" >
 
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.wake_lock"/>
 
     <application
         android:allowBackup="true"

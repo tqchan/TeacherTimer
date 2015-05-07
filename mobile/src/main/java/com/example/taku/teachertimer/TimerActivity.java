@@ -57,6 +57,7 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     String notice_text;
     String kaisi;
     String settingtime_text;
+    String bg_color;
 
 
     @Override
@@ -187,7 +188,7 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle("GOOD")
                     .setContentText("いいね！が押されました")
-                    .setDefaults(Notification.DEFAULT_VIBRATE)
+//                    .setDefaults(Notification.DEFAULT_VIBRATE)
                     .setContentIntent(pendingIntent);
             notificationManagerCompat.notify(notification_id, notificationBuilder.build());
         }
@@ -209,7 +210,6 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     }
 
     public class MyCountDownTimer extends CountDownTimer {
-
         /**
          * @param millisInFuture    The number of millis in the future from the call
          *                          to {@link #start()} until the countdown is done and {@link #onFinish()}
@@ -226,18 +226,20 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
             //インターバル(1秒)毎に呼ばれる
             if (zikan_array.size() > notification_time_number) {
                 notification_time = zikan_array.get(notification_time_number);
-//                Log.d(TAG, "notification_time_number:" + notification_time_number);
-//                Log.d(TAG, "millisUntilFinished:" + millisUntilFinished / 1000);
             } else if (zikan_array.size() == notification_time_number) {
-
                 notification_time = jugyou;
-                Log.d(TAG, "jugyou:endtime");
             }
 
 
             if ((jugyou - (millisUntilFinished / 1000)) == notification_time) {
-                //設定した時間のmessage
-                settingtime();
+                if (notification_time_number < katei_array.size()) {
+                    notification_time_number = notification_time_number + 1;
+                    //設定した時間のmessage
+                    settingtime();
+                } else if (notification_time_number == katei_array.size()) {
+                    settingtime();
+                }
+
             } else if ((jugyou - (millisUntilFinished / 1000)) == (notification_time - 60)) {
                 //設定した1分前
                 notice_settingtime();
@@ -267,29 +269,27 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     }
 
     private void kaisi() {
-
         notification_title = katei_array.get(notification_time_number);
         kaisi = "今は" + notification_title + "の時間です";
         new SendDataThread(CLASS_SETTING_TIME_PATH, kaisi).start();
-
     }
 
     private void notice_settingtime() {
-
         notification_title = katei_array.get(notification_time_number);
         notice_text = "まもなく" + notification_title + "が終了です";
         new SendDataThread(NOTICE_SETTING_TIME_PATH, notice_text).start();
-
     }
 
     private void settingtime() {
-
         Log.d(TAG, "" + notification_time_number);
-        notification_title = katei_array.get(notification_time_number);
-        settingtime_text = "今は" + notification_title + "の時間です";
-        new SendDataThread(SETTING_TIME_PATH, settingtime_text).start();
-        notification_time_number = notification_time_number + 1;
+        if (katei_array.size() > notification_time_number) {
+            notification_title = katei_array.get(notification_time_number);
+            settingtime_text = "今は" + notification_title + "の時間です";
+        } else if (katei_array.size() == notification_time_number) {
+            settingtime_text = "設定した過程が終了しました。\nまもなく授業終了です";
+        }
 
+        new SendDataThread(SETTING_TIME_PATH, settingtime_text).start();
     }
 
 
@@ -305,9 +305,9 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
             for (Node node : nodes.getNodes()) {
                 SendMessageResult result = Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), path, handheldmessage.getBytes()).await();
                 if (result.getStatus().isSuccess()) {
-                    Log.d(TAG, "To:" + node.getDisplayName());
-                    Log.d(TAG, path);
-                    Log.d(TAG, handheldmessage);
+//                    Log.d(TAG, "To:" + node.getDisplayName());
+//                    Log.d(TAG, path);
+//                    Log.d(TAG, handheldmessage);
                 } else {
                     Log.d(TAG, "error");
                 }
