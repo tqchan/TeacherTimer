@@ -41,10 +41,7 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     Button good;
     int notification_time;
     int notification_time_number = 0;
-    int notification_id = 1;
-    String now_time;
     String notification_title;
-    NotificationCompat.Builder notificationBuilder;
     Context mcontext;
     Intent viewIntent;
     PendingIntent pendingIntent;
@@ -226,6 +223,7 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
             //インターバル(1秒)毎に呼ばれる
             if (zikan_array.size() > notification_time_number) {
                 notification_time = zikan_array.get(notification_time_number);
+                
             } else if (zikan_array.size() == notification_time_number) {
                 notification_time = jugyou;
             }

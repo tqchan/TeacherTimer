@@ -48,6 +48,7 @@ public class MainActivity extends ActionBarActivity {
     String zikan;
     String zikan_old;
     int time;
+    int time_old = 0;
     TextView add_katei;
     TextView add_time;
     int add_kazu = 0;
@@ -141,34 +142,41 @@ public class MainActivity extends ActionBarActivity {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //指導過程名取得
-                        kateimei = (EditText)content.findViewById(R.id.edit_title);
-                        katei = kateimei.getText().toString();
-                        katei_array.add(katei);
                         //時間の取得
                         time = (numberPicker1.getValue() * 600) + (numberPicker2.getValue() * 60) + (numberPicker3.getValue() * 30);
-                        zikan_array.add(time);
-                        Log.d(TAG, katei + time);
-                        //取得した値をセット
-                        add_katei.setText(katei);
-                        if (numberPicker3.getValue() == 1) {
-                            zikan = "" + numberPicker1.getValue() + numberPicker2.getValue() + ":" + (numberPicker3.getValue() * 30);
-                            add_time.setText(zikan);
-                        } else if (numberPicker3.getValue() == 0) {
-                            zikan = "" + numberPicker1.getValue() + numberPicker2.getValue() + ":" + numberPicker3.getValue() + numberPicker4.getValue();
-                            add_time.setText(zikan);
-                        }
+                        if (time > time_old) {
+                            //指導過程名取得&配列に
+                            kateimei = (EditText)content.findViewById(R.id.edit_title);
+                            katei = kateimei.getText().toString();
+                            katei_array.add(katei);
+                            //時間を配列に&判別のために時間を保存
+                            time_old = time;
+                            zikan_array.add(time);
+                            Log.d(TAG, katei + time);
+                            //取得した値をセット
+                            add_katei.setText(katei);
+                            if (numberPicker3.getValue() == 1) {
+                                zikan = "" + numberPicker1.getValue() + numberPicker2.getValue() + ":" + (numberPicker3.getValue() * 30);
+                                add_time.setText(zikan);
+                            } else if (numberPicker3.getValue() == 0) {
+                                zikan = "" + numberPicker1.getValue() + numberPicker2.getValue() + ":" + numberPicker3.getValue() + numberPicker4.getValue();
+                                add_time.setText(zikan);
+                            }
 
-                        //行を追加
-                        getLayoutInflater().inflate(R.layout.add_table_row, viewGroup);
-                        //文字設定
-                        tableRow = (TableRow)viewGroup.getChildAt(add_kazu);
-                        int add_id = add_kazu + 1;
-//                        ((TextView)(tableRow.getChildAt(0))).setText("" + add_id);
-                        ((TextView)(tableRow.getChildAt(1))).setText(katei);
-                        ((TextView)(tableRow.getChildAt(2))).setText(zikan_old + " - " + zikan);
-                        add_kazu ++;
-                        zikan_old = zikan;
+                            tableRow = new TableRow(mcontext);
+                            tableRow.setId(add_kazu);
+                            TextView textView = new TextView(mcontext);
+                            textView.setText(katei);
+                            TextView textView2 = new TextView(mcontext);
+                            textView2.setText(zikan_old + "-" + zikan);
+                            tableRow.addView(textView);
+                            tableRow.addView(textView2);
+                            tableLayout.addView(tableRow);
+                            add_kazu ++;
+                            zikan_old = zikan;
+                        } else {
+                            Toast.makeText(mcontext,"設定した時間が間違っています",Toast.LENGTH_LONG).show();
+                        }
                     }
                 })
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -257,7 +265,10 @@ public class MainActivity extends ActionBarActivity {
     OnClickListener removeOnClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            tableRow.removeAllViews();
+            tableLayout.removeAllViews();
+            katei_array.clear();
+            zikan_array.clear();
+            zikan_old = "00:00";
         }
     };
 
