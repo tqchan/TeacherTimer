@@ -42,6 +42,7 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     int notification_time;
     int notification_time_number = 0;
     int notification_id = 1;
+    String now_time;
     String notification_title;
     NotificationCompat.Builder notificationBuilder;
     Context mcontext;
@@ -52,12 +53,14 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     public static final String SETTING_TIME_PATH = "/setting/time";
     public static final String NOTICE_SETTING_TIME_PATH = "/notice/setting/time";
     public static final String CLASS_SETTING_TIME_PATH = "/class/setting/time";
+    public static final String GOOD_BUTTON_PUSH = "/good/button/push";
+    public static final String FINISH_BUTTON_PUSH = "/finish/button/push";
     String path;
     String handheldmessage;
     String notice_text;
     String kaisi;
     String settingtime_text;
-    String bg_color;
+    String good_text;
 
 
     @Override
@@ -177,20 +180,17 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
         @Override
         public void onClick(View v) {
             countDownTimer.onFinish();
+            new SendDataThread(FINISH_BUTTON_PUSH, "").start();
             SendDataThread.interrupted();
+
         }
     };
 
     OnClickListener goodOnClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            notificationBuilder = new NotificationCompat.Builder(mcontext)
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle("GOOD")
-                    .setContentText("いいね！が押されました")
-//                    .setDefaults(Notification.DEFAULT_VIBRATE)
-                    .setContentIntent(pendingIntent);
-            notificationManagerCompat.notify(notification_id, notificationBuilder.build());
+            good_text = "いいね！";
+            new SendDataThread(GOOD_BUTTON_PUSH, good_text).start();
         }
     };
 
@@ -305,9 +305,6 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
             for (Node node : nodes.getNodes()) {
                 SendMessageResult result = Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), path, handheldmessage.getBytes()).await();
                 if (result.getStatus().isSuccess()) {
-//                    Log.d(TAG, "To:" + node.getDisplayName());
-//                    Log.d(TAG, path);
-//                    Log.d(TAG, handheldmessage);
                 } else {
                     Log.d(TAG, "error");
                 }

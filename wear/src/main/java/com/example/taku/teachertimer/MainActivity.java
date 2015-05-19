@@ -5,31 +5,38 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.gms.wearable.MessageApi;
-import com.google.android.gms.wearable.MessageEvent;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends Activity{
 
-    private TextView mTextView;
+    TextView mTextView;
+    TextView good_TextView;
     LinearLayout bg_layout;
     IntentFilter mIntentFilter;
     String receive_message = null;
-    String message = "";
+    String receive_message_good = null;
+    String message = null;
+    String message_good = null;
     Vibrator mVibrator;
     private static final String TAG = MainActivity.class.getSimpleName();
     int vibrate_time = 0;
     int bg_color_number = 0;
+    int class_time = 0;
+    int now_class_time = 50 * 60;
+    int finish_time = 1;
+    ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +47,9 @@ public class MainActivity extends Activity{
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
                 mTextView = (TextView) stub.findViewById(R.id.text);
+                good_TextView = (TextView) stub.findViewById(R.id.goodtext);
                 bg_layout = (LinearLayout) stub.findViewById(R.id.bg);
+                mProgressBar = (ProgressBar) stub.findViewById(R.id.progressBar);
             }
         });
         mIntentFilter = new IntentFilter(Intent.ACTION_SEND);
@@ -50,17 +59,36 @@ public class MainActivity extends Activity{
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
+
+
     public class MessageReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             receive_message = intent.getStringExtra("message");
+            receive_message_good = intent.getStringExtra("good");
+            class_time = intent.getIntExtra("timer_start", 0);
             vibrate_time = intent.getIntExtra("vibrate_time", 100);
+            finish_time = intent.getIntExtra("finish", 0);
             Log.d("MessageReceive", "receivemessage" + receive_message);
-            if (receive_message != null) {
+            if (class_time != 0) {
+                Log.d(TAG, "testtesttest");
+                mProgressBar.setMax(50 * 60);
+                progress_thread();
+                class_time = 0;
+            } if (receive_message != null) {
                 message = receive_message;
                 bg_color_number ++;
+                receive_message =null;
                 Log.d("MessageReceive", "receivemessage" + receive_message);
-            } else {
+            } else if (receive_message_good != null) {
+                message_good = receive_message_good;
+                receive_message_good = null;
+            } else if (finish_time == 0) {
+                Log.d("TAG", "finish_time");
+                now_class_time = 0;
+                finish_time = 1;
+            }
+            else {
                 receive_message = "No Message";
             }
             setScreen();
@@ -68,7 +96,13 @@ public class MainActivity extends Activity{
     }
 
     private void setScreen() {
-        mTextView.setText(message);
+        if (message != null) {
+            mTextView.setText(message);
+            message = null;
+        } else if (message_good != null) {
+            good_TextView.setText(message_good);
+            message_good = null;
+        }
         vibrate();
     }
 
@@ -76,5 +110,22 @@ public class MainActivity extends Activity{
         mVibrator.vibrate(vibrate_time);
     }
 
+    private void progress_thread(){
+        final Timer timer = new Timer(true);
+        timer.schedule(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        now_class_time = now_class_time -1;
+                        mProgressBar.setProgress(now_class_time);
+                        Log.d(TAG, "now_time:" + now_class_time);
 
+                        if (now_class_time <= 0) {
+                            timer.cancel();
+                        }
+                    }
+                },0, 1000
+        );
+
+    };
 }

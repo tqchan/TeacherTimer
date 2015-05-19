@@ -5,6 +5,28 @@
     android:keepScreenOn="true">
 
     <TextView android:id="@+id/text" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true" android:text="@string/hello_round" />
+        android:layout_height="wrap_content"
+        android:text="@string/hello_round"
+        android:layout_marginTop="47dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/goodtext"
+        android:layout_marginBottom="52dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="test" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="40px"
+        android:id="@+id/progressBar"
+        android:max="100"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true"
+        android:progressDrawable="@drawable/custom_progress" />
 </RelativeLayout>
