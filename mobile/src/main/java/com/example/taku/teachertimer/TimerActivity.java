@@ -18,8 +18,12 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import java.util.ArrayList;
@@ -58,6 +62,7 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     String kaisi;
     String settingtime_text;
     String good_text;
+    DataMap dataMap;
 
 
     @Override
@@ -106,7 +111,6 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
-
 
     }
 
@@ -176,8 +180,10 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     OnClickListener cdt_fiOnclickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            dataMap = new DataMap();
             countDownTimer.onFinish();
-            new SendDataThread(FINISH_BUTTON_PUSH, "").start();
+            dataMap.putString("title", "");
+            new SendDataThread(FINISH_BUTTON_PUSH, dataMap).start();
             SendDataThread.interrupted();
 
         }
@@ -186,8 +192,10 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     OnClickListener goodOnClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            dataMap = new DataMap();
             good_text = "いいね！";
-            new SendDataThread(GOOD_BUTTON_PUSH, good_text).start();
+            dataMap.putString("title", good_text);
+            new SendDataThread(GOOD_BUTTON_PUSH, dataMap).start();
         }
     };
 
@@ -223,11 +231,10 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
             //インターバル(1秒)毎に呼ばれる
             if (zikan_array.size() > notification_time_number) {
                 notification_time = zikan_array.get(notification_time_number);
-                
+
             } else if (zikan_array.size() == notification_time_number) {
                 notification_time = jugyou;
             }
-
 
             if ((jugyou - (millisUntilFinished / 1000)) == notification_time) {
                 if (notification_time_number < katei_array.size()) {
@@ -267,44 +274,66 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     }
 
     private void kaisi() {
+        dataMap = new DataMap();
         notification_title = katei_array.get(notification_time_number);
         kaisi = "今は" + notification_title + "の時間です";
-        new SendDataThread(CLASS_SETTING_TIME_PATH, kaisi).start();
+        dataMap.putString("title", kaisi);
+        dataMap.putInt("time", notification_time);
+        new SendDataThread(CLASS_SETTING_TIME_PATH, dataMap).start();
     }
 
     private void notice_settingtime() {
+        dataMap = new DataMap();
         notification_title = katei_array.get(notification_time_number);
         notice_text = "まもなく" + notification_title + "が終了です";
-        new SendDataThread(NOTICE_SETTING_TIME_PATH, notice_text).start();
+        dataMap.putString("title", notice_text);
+        new SendDataThread(NOTICE_SETTING_TIME_PATH, dataMap).start();
     }
 
     private void settingtime() {
+        dataMap = new DataMap();
         Log.d(TAG, "" + notification_time_number);
         if (katei_array.size() > notification_time_number) {
             notification_title = katei_array.get(notification_time_number);
             settingtime_text = "今は" + notification_title + "の時間です";
+            dataMap.putString("title", settingtime_text);
+            dataMap.putInt("time", notification_time);
         } else if (katei_array.size() == notification_time_number) {
             settingtime_text = "設定した過程が終了しました。\nまもなく授業終了です";
+            dataMap.putString("title", settingtime_text);
+            dataMap.putInt("time", zikan_array.get(notification_time_number-1));
         }
 
-        new SendDataThread(SETTING_TIME_PATH, settingtime_text).start();
+        new SendDataThread(SETTING_TIME_PATH, dataMap).start();
     }
 
 
     class SendDataThread extends Thread {
-        public SendDataThread(String pth, String message) {
+        DataMap tmp_datamap;
+        public SendDataThread(String pth, DataMap message) {
             path = pth;
-            handheldmessage = message;
+//            handheldmessage = message;
+            tmp_datamap = message;
         }
 
         public void run() {
             Log.d(TAG, "senddata thread start");
             NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
             for (Node node : nodes.getNodes()) {
-                SendMessageResult result = Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), path, handheldmessage.getBytes()).await();
+//                SendMessageResult result = Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), path, handheldmessage.getBytes()).await();
+//                if (result.getStatus().isSuccess()) {
+//                } else {
+//                    Log.d(TAG, "error");
+//                }
+                PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(path);
+                putDataMapRequest.getDataMap().putAll(dataMap);
+                PutDataRequest request = putDataMapRequest.asPutDataRequest();
+                DataApi.DataItemResult result = Wearable.DataApi.putDataItem(mGoogleApiClient,request).await();
+
                 if (result.getStatus().isSuccess()) {
+                    Log.d(TAG, "DataMap: " + dataMap + " sent to: " + node.getDisplayName());
                 } else {
-                    Log.d(TAG, "error");
+                    Log.d(TAG, "ERROR");
                 }
             }
         }
