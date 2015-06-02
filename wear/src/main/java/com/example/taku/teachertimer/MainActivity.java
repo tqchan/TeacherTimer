@@ -34,8 +34,12 @@ public class MainActivity extends Activity{
     int bg_color_number = 0;
     int class_time = 0;
     int now_class_time = 50 * 60;
+    int now_katei_time = 1;
+    int tmp_now_katei_time;
     int finish_time = 1;
     ProgressBar mProgressBar;
+    ProgressBar mProgressBar_katei;
+    int testtesttest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +53,7 @@ public class MainActivity extends Activity{
                 good_TextView = (TextView) stub.findViewById(R.id.goodtext);
                 bg_layout = (LinearLayout) stub.findViewById(R.id.bg);
                 mProgressBar = (ProgressBar) stub.findViewById(R.id.progressBar);
+                mProgressBar_katei = (ProgressBar) stub.findViewById(R.id.progressBar_katei);
             }
         });
         mIntentFilter = new IntentFilter(Intent.ACTION_SEND);
@@ -68,14 +73,25 @@ public class MainActivity extends Activity{
             class_time = intent.getIntExtra("timer_start", 0);
             vibrate_time = intent.getIntExtra("vibrate_time", 100);
             finish_time = intent.getIntExtra("finish", 0);
+//            now_katei_time = intent.getIntExtra("time", 0);
+            tmp_now_katei_time = intent.getIntExtra("time", -1);
+//            now_katei_time = intent.getIntExtra("time", 0);
+            if (tmp_now_katei_time != -1) {
+                now_katei_time = intent.getIntExtra("time", 0);
+            }
             Log.d("MessageReceive", "receivemessage" + receive_message);
+            Log.d("MessageReceive", "katei_receivemessage" + now_katei_time);
             if (class_time != 0) {
                 Log.d(TAG, "testtesttest");
                 mProgressBar.setMax(50 * 60);
+                mProgressBar_katei.setMax(now_katei_time);
                 progress_thread();
                 class_time = 0;
             } if (receive_message != null) {
                 message = receive_message;
+                if (tmp_now_katei_time != -1) {
+                    mProgressBar_katei.setMax(now_katei_time);
+                }
                 bg_color_number ++;
                 receive_message =null;
                 Log.d("MessageReceive", "receivemessage" + receive_message);
@@ -111,13 +127,17 @@ public class MainActivity extends Activity{
 
     private void progress_thread(){
         final Timer timer = new Timer(true);
+        testtesttest = testtesttest+1;
         timer.schedule(
                 new TimerTask() {
                     @Override
                     public void run() {
                         now_class_time = now_class_time -1;
+                        now_katei_time = now_katei_time -1;
                         mProgressBar.setProgress(now_class_time);
-                        Log.d(TAG, "now_time:" + now_class_time);
+                        mProgressBar_katei.setProgress(now_katei_time);
+                        Log.d(TAG, "now_time" + testtesttest + ":" + now_class_time);
+                        Log.d(TAG, "now_katei_time" + testtesttest + ":" + now_katei_time);
 
                         if (now_class_time <= 0) {
                             timer.cancel();

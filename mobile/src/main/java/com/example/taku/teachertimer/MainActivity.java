@@ -268,6 +268,7 @@ public class MainActivity extends ActionBarActivity {
             tableLayout.removeAllViews();
             katei_array.clear();
             zikan_array.clear();
+            time_old = 0;
             zikan_old = "00:00";
         }
     };

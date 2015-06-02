@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -63,6 +64,8 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     String settingtime_text;
     String good_text;
     DataMap dataMap;
+    String good_time;
+    int send_time;
 
 
     @Override
@@ -111,6 +114,9 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
     }
 
@@ -193,7 +199,7 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
         @Override
         public void onClick(View v) {
             dataMap = new DataMap();
-            good_text = "いいね！";
+            good_text = "いいね！" + good_time;
             dataMap.putString("title", good_text);
             new SendDataThread(GOOD_BUTTON_PUSH, dataMap).start();
         }
@@ -235,6 +241,7 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
             } else if (zikan_array.size() == notification_time_number) {
                 notification_time = jugyou;
             }
+            keikazikan(millisUntilFinished);
 
             if ((jugyou - (millisUntilFinished / 1000)) == notification_time) {
                 if (notification_time_number < katei_array.size()) {
@@ -273,12 +280,31 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
         }
     }
 
+    private void keikazikan(long millisUntilFinished) {
+        long tmp_keikazikan;
+        tmp_keikazikan = (jugyou - (millisUntilFinished/1000));
+        Log.d(TAG, ""+tmp_keikazikan);
+        if (tmp_keikazikan / 60 >= 10){
+            if ((tmp_keikazikan % 60) >= 10) {
+                good_time = (tmp_keikazikan / 60) + ":" + (tmp_keikazikan % 60);
+            } else if ((tmp_keikazikan % 60) < 10) {
+                good_time = (tmp_keikazikan / 60) + ":0" + (tmp_keikazikan % 60);
+            }
+        } else if (tmp_keikazikan / 60 < 9) {
+            if ((tmp_keikazikan % 60) >= 10) {
+                good_time = "0" +  (tmp_keikazikan / 60) + ":" + (tmp_keikazikan % 60);
+            } else if ((tmp_keikazikan % 60) < 10) {
+                good_time = "0" + (tmp_keikazikan / 60) + ":0" + (tmp_keikazikan % 60);
+            }
+        }
+    }
+
     private void kaisi() {
         dataMap = new DataMap();
         notification_title = katei_array.get(notification_time_number);
         kaisi = "今は" + notification_title + "の時間です";
         dataMap.putString("title", kaisi);
-        dataMap.putInt("time", notification_time);
+        dataMap.putInt("time", zikan_array.get(notification_time_number));
         new SendDataThread(CLASS_SETTING_TIME_PATH, dataMap).start();
     }
 
@@ -294,14 +320,16 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
         dataMap = new DataMap();
         Log.d(TAG, "" + notification_time_number);
         if (katei_array.size() > notification_time_number) {
+            send_time = zikan_array.get(notification_time_number) - zikan_array.get(notification_time_number-1);
             notification_title = katei_array.get(notification_time_number);
             settingtime_text = "今は" + notification_title + "の時間です";
             dataMap.putString("title", settingtime_text);
-            dataMap.putInt("time", notification_time);
+            dataMap.putInt("time", send_time);
         } else if (katei_array.size() == notification_time_number) {
-            settingtime_text = "設定した過程が終了しました。\nまもなく授業終了です";
+            settingtime_text = "設定した過程は終了です。\nまもなく授業終了です。";
             dataMap.putString("title", settingtime_text);
-            dataMap.putInt("time", zikan_array.get(notification_time_number-1));
+            dataMap.putInt("time", (jugyou - zikan_array.get(notification_time_number-1)));
+//            dataMap.putInt("time", zikan_array.get(notification_time_number-1));
         }
 
         new SendDataThread(SETTING_TIME_PATH, dataMap).start();
@@ -312,7 +340,6 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
         DataMap tmp_datamap;
         public SendDataThread(String pth, DataMap message) {
             path = pth;
-//            handheldmessage = message;
             tmp_datamap = message;
         }
 
@@ -320,11 +347,6 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
             Log.d(TAG, "senddata thread start");
             NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
             for (Node node : nodes.getNodes()) {
-//                SendMessageResult result = Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), path, handheldmessage.getBytes()).await();
-//                if (result.getStatus().isSuccess()) {
-//                } else {
-//                    Log.d(TAG, "error");
-//                }
                 PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(path);
                 putDataMapRequest.getDataMap().putAll(dataMap);
                 PutDataRequest request = putDataMapRequest.asPutDataRequest();

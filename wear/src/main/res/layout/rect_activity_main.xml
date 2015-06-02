@@ -13,11 +13,7 @@
         android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello_square" />
-
-    <Space
-        android:layout_width="20px"
-        android:layout_height="20px" />
+        android:text="" />
 
     <Space
         android:layout_width="20px"
@@ -27,17 +23,40 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/goodtext"
-        android:text="test" />
+        android:text="" />
 
     <Space
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_width="20px"
+        android:layout_height="20px" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/alltext"
+        android:text="全体" />
 
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="40px"
         android:id="@+id/progressBar"
+        android:progressDrawable="@drawable/custom_progress" />
+
+    <Space
+        android:layout_width="20px"
+        android:layout_height="20px" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/nowtext"
+        android:text="現在の過程" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="40px"
+        android:id="@+id/progressBar_katei"
         android:progressDrawable="@drawable/custom_progress" />
 
 </LinearLayout>

@@ -85,7 +85,7 @@ public class DataLayerLisenerService extends WearableListenerService {
     public void onDataChanged(DataEventBuffer dataEvents) {
         Log.d(TAG, "data received");
 
-        DataMap dataMap = null;
+        DataMap dataMap;
         for (DataEvent event : dataEvents) {
             if (event.getType() == DataEvent.TYPE_CHANGED) {
                 String path = event.getDataItem().getUri().getPath();
@@ -94,6 +94,8 @@ public class DataLayerLisenerService extends WearableListenerService {
                     wear_message = dataMap.getString("title");
                     katei_time = dataMap.getInt("time");
                     vibrate_time = 500;
+
+                    Log.d(TAG, "kateitime" + katei_time);
 
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_SEND);
@@ -107,6 +109,8 @@ public class DataLayerLisenerService extends WearableListenerService {
                     wear_message = dataMap.getString("title");
                     katei_time = dataMap.getInt("time");
 
+                    Log.d(TAG, "kateitime" + katei_time);
+
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_SEND);
                     intent.putExtra("message", wear_message);
@@ -117,22 +121,24 @@ public class DataLayerLisenerService extends WearableListenerService {
                 } else if (path.equals(NOTICE_SETTING_TIME_PATH)) {
                     dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                     wear_message = dataMap.getString("title");
-                    katei_time = dataMap.getInt("time");
                     vibrate_time = 100;
 
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_SEND);
                     intent.putExtra("message", wear_message);
                     intent.putExtra("vibrate_time", vibrate_time);
-                    intent.putExtra("time", katei_time);
                     LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
                 } else if (path.equals(GOOD_BUTTON_PUSH)) {
+                    dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                     good_text = dataMap.getString("title");
+                    vibrate_time = 200;
+                    Log.d(TAG, "received" + good_text);
 
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_SEND);
                     intent.putExtra("good", good_text);
+                    intent.putExtra("vibrate_time", vibrate_time);
                     LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
                 } else if (path.equals(FINISH_BUTTON_PUSH)) {
