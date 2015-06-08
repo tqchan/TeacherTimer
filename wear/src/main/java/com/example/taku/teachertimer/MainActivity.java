@@ -33,7 +33,8 @@ public class MainActivity extends Activity{
     int vibrate_time = 0;
     int bg_color_number = 0;
     int class_time = 0;
-    int now_class_time = 50 * 60;
+//    int now_class_time = 50 * 60;
+    int now_class_time = 10 * 60;
     int now_katei_time = 1;
     int tmp_now_katei_time;
     int finish_time = 1;
@@ -63,7 +64,11 @@ public class MainActivity extends Activity{
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        this.finish();
+    }
 
     public class MessageReceiver extends BroadcastReceiver {
         @Override
@@ -83,7 +88,7 @@ public class MainActivity extends Activity{
             Log.d("MessageReceive", "katei_receivemessage" + now_katei_time);
             if (class_time != 0) {
                 Log.d(TAG, "testtesttest");
-                mProgressBar.setMax(50 * 60);
+                mProgressBar.setMax(10 * 60);
                 mProgressBar_katei.setMax(now_katei_time);
                 progress_thread();
                 class_time = 0;

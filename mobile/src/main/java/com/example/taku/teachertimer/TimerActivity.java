@@ -39,7 +39,8 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     ArrayList<Integer> zikan_array;
     ArrayList<String> katei_array;
     CountDownTimer countDownTimer;
-    int jugyou = 50 * 60;
+//    int jugyou = 50 * 60;
+    int jugyou = 10 * 60;
     TextView time_left;
     Button cdt_st;
     Button cdt_fi;
@@ -264,7 +265,7 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
                 } else if ((millisUntilFinished / 1000 % 60) < 10) {
                     time_left.setText(Long.toString(millisUntilFinished / 1000 / 60) + ":0" + Long.toString(millisUntilFinished / 1000 % 60));
                 }
-            } else if ((millisUntilFinished / 1000 / 60) < 9) {
+            } else if ((millisUntilFinished / 1000 / 60) < 10) {
                 if ((millisUntilFinished / 1000 % 60) >= 10) {
                     time_left.setText("0" + Long.toString(millisUntilFinished / 1000 / 60) + ":" + Long.toString(millisUntilFinished / 1000 % 60));
                 } else if ((millisUntilFinished / 1000 % 60) < 10) {
