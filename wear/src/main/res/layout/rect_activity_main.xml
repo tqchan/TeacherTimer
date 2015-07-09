@@ -1,13 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".MainActivity"
     tools:deviceIds="wear_square"
     android:keepScreenOn="true"
     android:weightSum="1">
+<!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--xmlns:tools="http://schemas.android.com/tools"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:orientation="vertical"-->
+    <!--tools:context=".MainActivity"-->
+    <!--tools:deviceIds="wear_square"-->
+    <!--android:keepScreenOn="true"-->
+    <!--android:weightSum="1">-->
+<view
+    android:id="@+id/canvas_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    class="com.example.taku.teachertimer.BackGrounds" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
 
     <TextView
         android:id="@+id/text"
@@ -32,6 +50,36 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/nowtext"
+        android:text="現在の過程" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="40px"
+        android:id="@+id/progressBar_katei"
+        android:progressDrawable="@drawable/custom_progress2" />
+
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/alltext"-->
+        <!--android:text="全体" />-->
+
+    <!--<ProgressBar-->
+        <!--style="?android:attr/progressBarStyleHorizontal"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="40px"-->
+        <!--android:id="@+id/progressBar"-->
+        <!--android:progressDrawable="@drawable/custom_progress" />-->
+
+    <Space
+        android:layout_width="20px"
+        android:layout_height="20px" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/alltext"
         android:text="全体" />
 
@@ -42,21 +90,22 @@
         android:id="@+id/progressBar"
         android:progressDrawable="@drawable/custom_progress" />
 
-    <Space
-        android:layout_width="20px"
-        android:layout_height="20px" />
+    <!--<FrameLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"></FrameLayout>-->
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/nowtext"
-        android:text="現在の過程" />
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/nowtext"-->
+        <!--android:text="現在の過程" />-->
 
-    <ProgressBar
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="40px"
-        android:id="@+id/progressBar_katei"
-        android:progressDrawable="@drawable/custom_progress" />
+    <!--<ProgressBar-->
+        <!--style="?android:attr/progressBarStyleHorizontal"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="40px"-->
+        <!--android:id="@+id/progressBar_katei"-->
+        <!--android:progressDrawable="@drawable/custom_progress" />-->
 
 </LinearLayout>
+    </FrameLayout>

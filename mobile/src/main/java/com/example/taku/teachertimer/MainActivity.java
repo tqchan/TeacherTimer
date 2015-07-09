@@ -24,13 +24,26 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
+
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Locale;
 
 import static android.view.View.OnClickListener;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     LinearLayout linearLayout;
@@ -58,6 +71,9 @@ public class MainActivity extends ActionBarActivity {
     ArrayList<Integer> zikan_array;
     ArrayList<String> katei_array;
     Context mcontext;
+    String path;
+    GoogleApiClient mGoogleApiClient;
+    public static final String START_WEAR_ACTIVITY = "/start/wear/activity";
 
 
     @Override
@@ -70,17 +86,17 @@ public class MainActivity extends ActionBarActivity {
          * linearLayout
          * inflater         レイアウトのinflater
          * add_linearLayout 追加するLinearLayout
-         * add_katei
-         * add_time
-         * tableLayout
-         * add
-         * add_finish
-         * remove
-         * katei_array
-         * zikan_array
-         * mcontext
-         * viewGroup
-         * zikan_old
+         * add_katei        追加する過程名
+         * add_time         追加する過程の時間
+         * tableLayout      ダイアログの結果を表示するテーブル
+         * add              追加ボタン
+         * add_finish       完了ボタン
+         * remove           削除ボタン
+         * katei_array      過程名を格納する配列
+         * zikan_array      時間を格納する配列
+         * mcontext         this
+         * viewGroup        tablelayoutのviewgroup
+         * zikan_old        設定した前の時間
          *
          */
 
@@ -105,6 +121,12 @@ public class MainActivity extends ActionBarActivity {
         remove.setOnClickListener(removeOnClickListener);
 
         zikan_old = "00:00";
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Wearable.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
     }
 
     @Override
@@ -196,6 +218,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        mGoogleApiClient.connect();
     }
 
     @Override
@@ -239,6 +262,21 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.d(TAG, "onConnected");
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
     //clicklistener
     OnClickListener addOnClickListener = new OnClickListener() {
         @Override
@@ -258,6 +296,7 @@ public class MainActivity extends ActionBarActivity {
                 Toast.makeText(mcontext,"時間を設定してください",Toast.LENGTH_LONG).show();
             } else if (katei_array.size() > 0 && zikan_array.size() > 0) {
                 startActivity(intent);
+                sendMessageToStartActivity();
             }
         }
     };
@@ -272,5 +311,58 @@ public class MainActivity extends ActionBarActivity {
             zikan_old = "00:00";
         }
     };
+
+//    class SendDataThread extends Thread {
+//        DataMap tmp_datamap;
+//        public SendDataThread(String pth, DataMap message) {
+//            path = pth;
+//            tmp_datamap = message;
+//        }
+//
+//        public void run() {
+//            Log.d(TAG, "senddata thread start");
+//            NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
+//            for (Node node : nodes.getNodes()) {
+//                PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(path);
+//                putDataMapRequest.getDataMap().putAll(dataMap);
+//                PutDataRequest request = putDataMapRequest.asPutDataRequest();
+//                DataApi.DataItemResult result = Wearable.DataApi.putDataItem(mGoogleApiClient,request).await();
+//
+//                if (result.getStatus().isSuccess()) {
+//                    Log.d(TAG, "DataMap: " + dataMap + " sent to: " + node.getDisplayName());
+//                } else {
+//                    Log.d(TAG, "ERROR");
+//                }
+//            }
+//        }
+
+    private Collection<String> getNodes() {
+        HashSet<String> results = new HashSet<String>();
+        NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
+        for (Node node : nodes.getNodes()) {
+            results.add(node.getId());
+        }
+        return results;
+    }
+
+    private void sendMessageToStartActivity() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Collection<String> nodes = getNodes();
+                for (String node : nodes) {
+                    MessageApi.SendMessageResult result =
+                            Wearable.MessageApi.sendMessage(mGoogleApiClient, node, START_WEAR_ACTIVITY, null).await();
+                    if (!result.getStatus().isSuccess()) {
+                        Log.e(TAG, "ERROR: failed to send Message: " + result.getStatus());
+                    }
+                }
+            }
+        }).start();
+
+    }
+
+
+
 
 }
