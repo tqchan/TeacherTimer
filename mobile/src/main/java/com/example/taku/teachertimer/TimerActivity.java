@@ -39,8 +39,8 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
     ArrayList<Integer> zikan_array;
     ArrayList<String> katei_array;
     CountDownTimer countDownTimer;
-//    int jugyou = 50 * 60;
-    int jugyou = 10 * 60;
+    int jugyou = 50 * 60;
+//    int jugyou = 120 * 60;
     TextView time_left;
     Button cdt_st;
     Button cdt_fi;
@@ -311,10 +311,12 @@ public class TimerActivity extends ActionBarActivity implements GoogleApiClient.
 
     private void notice_settingtime() {
         dataMap = new DataMap();
-        notification_title = katei_array.get(notification_time_number);
-        notice_text = "まもなく" + notification_title + "が終了です";
-        dataMap.putString("title", notice_text);
-        new SendDataThread(NOTICE_SETTING_TIME_PATH, dataMap).start();
+        if (katei_array.size() > notification_time_number) {
+            notification_title = katei_array.get(notification_time_number);
+            notice_text = "まもなく" + notification_title + "が終了です";
+            dataMap.putString("title", notice_text);
+            new SendDataThread(NOTICE_SETTING_TIME_PATH, dataMap).start();
+        }
     }
 
     private void settingtime() {

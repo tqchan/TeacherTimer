@@ -21,14 +21,23 @@ public class DataLayerLisenerService extends WearableListenerService {
     public static final String CLASS_SETTING_TIME_PATH = "/class/setting/time";
     public static final String GOOD_BUTTON_PUSH = "/good/button/push";
     public static final String FINISH_BUTTON_PUSH = "/finish/button/push";
+    public static final String START_WEAR_ACTIVITY = "/start/wear/activity";
     String wear_message;
     String good_text;
     int katei_time;
     int vibrate_time;
+        int class_time = 50 * 60;
+//    int class_time = 120 * 60;
 
-//    @Override
-//    public void onMessageReceived(MessageEvent messageEvent) {
-//        super.onMessageReceived(messageEvent);
+    @Override
+    public void onMessageReceived(MessageEvent messageEvent) {
+        super.onMessageReceived(messageEvent);
+        if (START_WEAR_ACTIVITY.equals(messageEvent.getPath())) {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            return;
+        }
 //        if (messageEvent.getPath().equals(SETTING_TIME_PATH)) {
 //
 //            wear_message = new String(messageEvent.getData());
@@ -78,7 +87,7 @@ public class DataLayerLisenerService extends WearableListenerService {
 //            Log.d(TAG, messageEvent.getPath());
 //        }
 //
-//    }
+    }
 
 
     @Override
@@ -114,7 +123,7 @@ public class DataLayerLisenerService extends WearableListenerService {
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_SEND);
                     intent.putExtra("message", wear_message);
-                    intent.putExtra("timer_start", 50 * 60);
+                    intent.putExtra("timer_start", class_time);
                     intent.putExtra("time", katei_time);
                     LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
